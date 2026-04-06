@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__notion__notion-get-users",
+      "mcp__notion__notion-search",
+      "mcp__notion__notion-fetch"
+    ]
+  }
+}
