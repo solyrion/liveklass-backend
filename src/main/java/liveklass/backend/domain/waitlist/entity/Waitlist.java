@@ -30,17 +30,17 @@ public class Waitlist {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private int order;
+    @Column(name = "wait_order", nullable = false)
+    private int waitOrder;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public Waitlist(Course course, User user, int order) {
+    public Waitlist(Course course, User user, int waitOrder) {
         this.course = course;
         this.user = user;
-        this.order = order;
+        this.waitOrder = waitOrder;
         this.createdAt = LocalDateTime.now();
     }
 }
