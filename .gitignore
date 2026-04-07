@@ -39,3 +39,4 @@ out/
 ### Project specific ###
 docker-compose.yml
 DESIGN.md
+CLAUDE.md
