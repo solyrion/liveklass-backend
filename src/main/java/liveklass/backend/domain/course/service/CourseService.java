@@ -8,6 +8,8 @@ import liveklass.backend.domain.course.entity.CourseStatus;
 import liveklass.backend.domain.course.repository.CourseRepository;
 import liveklass.backend.domain.user.entity.User;
 import liveklass.backend.domain.user.repository.UserRepository;
+import liveklass.backend.global.exception.ForbiddenException;
+import liveklass.backend.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +26,7 @@ public class CourseService {
     @Transactional
     public CourseResponse createCourse(Long creatorId, CourseCreateRequest request) {
         User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + creatorId));
+                .orElseThrow(() -> new NotFoundException("User not found: " + creatorId));
 
         Course course = Course.builder()
                 .creator(creator)
@@ -42,10 +44,10 @@ public class CourseService {
     @Transactional
     public CourseResponse changeStatus(Long creatorId, Long courseId, CourseStatusRequest request) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+                .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
 
         if (!course.getCreator().getId().equals(creatorId)) {
-            throw new IllegalArgumentException("Only the creator can change course status");
+            throw new ForbiddenException("Only the creator can change course status");
         }
 
         course.changeStatus(request.getStatus());
@@ -65,7 +67,7 @@ public class CourseService {
     @Transactional(readOnly = true)
     public CourseResponse getCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+                .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
         return CourseResponse.from(course);
     }
 }
