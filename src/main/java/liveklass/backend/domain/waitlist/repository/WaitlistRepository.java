@@ -11,12 +11,12 @@ public interface WaitlistRepository extends JpaRepository<Waitlist, Long> {
 
     Optional<Waitlist> findByCourse_IdAndUser_Id(Long courseId, Long userId);
 
-    Optional<Waitlist> findFirstByCourse_IdOrderByOrderAsc(Long courseId);
+    Optional<Waitlist> findFirstByCourse_IdOrderByWaitOrderAsc(Long courseId);
 
     boolean existsByCourse_IdAndUser_Id(Long courseId, Long userId);
 
     long countByCourse_Id(Long courseId);
 
-    @Query("SELECT COALESCE(MAX(w.order), 0) FROM Waitlist w WHERE w.course.id = :courseId")
+    @Query("SELECT COALESCE(MAX(w.waitOrder), 0) FROM Waitlist w WHERE w.course.id = :courseId")
     int findMaxOrderByCourseId(@Param("courseId") Long courseId);
 }
