@@ -9,6 +9,9 @@ import liveklass.backend.domain.user.repository.UserRepository;
 import liveklass.backend.domain.waitlist.dto.WaitlistResponse;
 import liveklass.backend.domain.waitlist.entity.Waitlist;
 import liveklass.backend.domain.waitlist.repository.WaitlistRepository;
+import liveklass.backend.global.exception.BadRequestException;
+import liveklass.backend.global.exception.ConflictException;
+import liveklass.backend.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,25 +28,25 @@ public class WaitlistService {
     @Transactional
     public WaitlistResponse register(Long userId, Long courseId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
 
         Course course = courseRepository.findByIdWithLock(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+                .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
 
         if (!course.isOpen()) {
-            throw new IllegalStateException("Course is not open");
+            throw new BadRequestException("Course is not open");
         }
 
         if (!course.isFull()) {
-            throw new IllegalStateException("Course still has available seats. Please enroll directly");
+            throw new BadRequestException("Course still has available seats. Please enroll directly");
         }
 
         if (enrollmentRepository.existsByCourse_IdAndUser_IdAndStatusNot(courseId, userId, EnrollmentStatus.CANCELLED)) {
-            throw new IllegalStateException("Already enrolled in this course");
+            throw new ConflictException("Already enrolled in this course");
         }
 
         if (waitlistRepository.existsByCourse_IdAndUser_Id(courseId, userId)) {
-            throw new IllegalStateException("Already in waitlist");
+            throw new ConflictException("Already in waitlist");
         }
 
         int nextOrder = waitlistRepository.findMaxOrderByCourseId(courseId) + 1;
@@ -63,10 +66,10 @@ public class WaitlistService {
     @Transactional
     public void cancel(Long userId, Long courseId) {
         Waitlist waitlist = waitlistRepository.findByCourse_IdAndUser_Id(courseId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Not in waitlist"));
+                .orElseThrow(() -> new NotFoundException("Not in waitlist"));
 
         if (!waitlist.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Not authorized");
+            throw new NotFoundException("Not authorized");
         }
 
         waitlistRepository.delete(waitlist);
@@ -75,7 +78,7 @@ public class WaitlistService {
     @Transactional(readOnly = true)
     public WaitlistResponse getMyWaitlist(Long userId, Long courseId) {
         Waitlist waitlist = waitlistRepository.findByCourse_IdAndUser_Id(courseId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Not in waitlist"));
+                .orElseThrow(() -> new NotFoundException("Not in waitlist"));
 
         long totalWaiting = waitlistRepository.countByCourse_Id(courseId);
         return WaitlistResponse.from(waitlist, totalWaiting);
