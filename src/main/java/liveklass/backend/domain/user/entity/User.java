@@ -30,6 +30,14 @@ public class User {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    public boolean isCreator() {
+        return this.role == UserRole.CREATOR;
+    }
+
+    public boolean isStudent() {
+        return this.role == UserRole.STUDENT;
+    }
+
     @Builder
     public User(String name, String email, UserRole role) {
         this.name = name;
