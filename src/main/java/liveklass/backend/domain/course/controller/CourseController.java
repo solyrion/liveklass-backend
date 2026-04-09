@@ -5,6 +5,7 @@ import liveklass.backend.domain.course.dto.CourseResponse;
 import liveklass.backend.domain.course.dto.CourseStatusRequest;
 import liveklass.backend.domain.course.entity.CourseStatus;
 import liveklass.backend.domain.course.service.CourseService;
+import liveklass.backend.domain.enrollment.dto.EnrollmentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,5 +46,13 @@ public class CourseController {
     @GetMapping("/{courseId}")
     public CourseResponse getCourse(@PathVariable Long courseId) {
         return courseService.getCourse(courseId);
+    }
+
+    @GetMapping("/{courseId}/enrollments")
+    public Page<EnrollmentResponse> getCourseEnrollments(
+            @RequestHeader("X-User-Id") Long creatorId,
+            @PathVariable Long courseId,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return courseService.getCourseEnrollments(creatorId, courseId, pageable);
     }
 }

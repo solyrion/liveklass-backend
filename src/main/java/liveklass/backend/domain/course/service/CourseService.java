@@ -6,6 +6,8 @@ import liveklass.backend.domain.course.dto.CourseStatusRequest;
 import liveklass.backend.domain.course.entity.Course;
 import liveklass.backend.domain.course.entity.CourseStatus;
 import liveklass.backend.domain.course.repository.CourseRepository;
+import liveklass.backend.domain.enrollment.dto.EnrollmentResponse;
+import liveklass.backend.domain.enrollment.repository.EnrollmentRepository;
 import liveklass.backend.domain.user.entity.User;
 import liveklass.backend.domain.user.repository.UserRepository;
 import liveklass.backend.global.exception.ForbiddenException;
@@ -22,6 +24,7 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @Transactional
     public CourseResponse createCourse(Long creatorId, CourseCreateRequest request) {
@@ -69,5 +72,18 @@ public class CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
         return CourseResponse.from(course);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<EnrollmentResponse> getCourseEnrollments(Long creatorId, Long courseId, Pageable pageable) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
+
+        if (!course.getCreator().getId().equals(creatorId)) {
+            throw new ForbiddenException("Only the creator can view enrollments");
+        }
+
+        return enrollmentRepository.findAllByCourse_Id(courseId, pageable)
+                .map(EnrollmentResponse::from);
     }
 }
