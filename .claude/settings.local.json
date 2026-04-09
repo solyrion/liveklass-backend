@@ -8,7 +8,9 @@
       "Bash(./gradlew build:*)",
       "Bash(mysql:*)",
       "Bash(docker exec:*)",
-      "Bash(./gradlew compileJava 2>&1)"
+      "Bash(./gradlew compileJava 2>&1)",
+      "Bash(./gradlew compileJava compileTestJava 2>&1)",
+      "Bash(./gradlew test:*)"
     ]
   }
 }
