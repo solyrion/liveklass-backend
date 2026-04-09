@@ -31,6 +31,10 @@ public class CourseService {
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + creatorId));
 
+        if (!creator.isCreator()) {
+            throw new ForbiddenException("Only CREATOR can create a course");
+        }
+
         Course course = Course.builder()
                 .creator(creator)
                 .title(request.getTitle())
@@ -46,6 +50,13 @@ public class CourseService {
 
     @Transactional
     public CourseResponse changeStatus(Long creatorId, Long courseId, CourseStatusRequest request) {
+        User creator = userRepository.findById(creatorId)
+                .orElseThrow(() -> new NotFoundException("User not found: " + creatorId));
+
+        if (!creator.isCreator()) {
+            throw new ForbiddenException("Only CREATOR can change course status");
+        }
+
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
 

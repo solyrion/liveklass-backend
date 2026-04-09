@@ -10,6 +10,7 @@ import liveklass.backend.domain.waitlist.entity.Waitlist;
 import liveklass.backend.domain.waitlist.repository.WaitlistRepository;
 import liveklass.backend.global.exception.BadRequestException;
 import liveklass.backend.global.exception.ConflictException;
+import liveklass.backend.global.exception.ForbiddenException;
 import liveklass.backend.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,10 @@ public class WaitlistService {
     public WaitlistResponse register(Long userId, Long courseId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+
+        if (!user.isStudent()) {
+            throw new ForbiddenException("Only STUDENT can register to waitlist");
+        }
 
         Course course = courseRepository.findByIdWithLock(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
@@ -64,6 +69,13 @@ public class WaitlistService {
 
     @Transactional
     public void cancel(Long userId, Long courseId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+
+        if (!user.isStudent()) {
+            throw new ForbiddenException("Only STUDENT can cancel waitlist");
+        }
+
         Waitlist waitlist = waitlistRepository.findByCourse_IdAndUser_Id(courseId, userId)
                 .orElseThrow(() -> new NotFoundException("Not in waitlist"));
 
