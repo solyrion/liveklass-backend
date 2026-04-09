@@ -2,7 +2,6 @@ package liveklass.backend.domain.waitlist.service;
 
 import liveklass.backend.domain.course.entity.Course;
 import liveklass.backend.domain.course.repository.CourseRepository;
-import liveklass.backend.domain.enrollment.entity.EnrollmentStatus;
 import liveklass.backend.domain.enrollment.repository.EnrollmentRepository;
 import liveklass.backend.domain.user.entity.User;
 import liveklass.backend.domain.user.repository.UserRepository;
@@ -41,9 +40,9 @@ public class WaitlistService {
             throw new BadRequestException("Course still has available seats. Please enroll directly");
         }
 
-        if (enrollmentRepository.existsByCourse_IdAndUser_IdAndStatusNot(courseId, userId, EnrollmentStatus.CANCELLED)) {
-            throw new ConflictException("Already enrolled in this course");
-        }
+        enrollmentRepository.findByCourse_IdAndUser_Id(courseId, userId)
+                .filter(e -> !e.isCancelled())
+                .ifPresent(e -> { throw new ConflictException("Already enrolled in this course"); });
 
         if (waitlistRepository.existsByCourse_IdAndUser_Id(courseId, userId)) {
             throw new ConflictException("Already in waitlist");

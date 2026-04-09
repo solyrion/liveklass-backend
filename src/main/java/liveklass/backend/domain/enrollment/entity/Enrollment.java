@@ -74,6 +74,15 @@ public class Enrollment {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void reEnroll() {
+        if (this.status != EnrollmentStatus.CANCELLED) {
+            throw new IllegalStateException("Only CANCELLED enrollment can be re-enrolled");
+        }
+        this.status = EnrollmentStatus.PENDING;
+        this.cancelledAt = null;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public boolean isCancelled() {
         return this.status == EnrollmentStatus.CANCELLED;
     }
