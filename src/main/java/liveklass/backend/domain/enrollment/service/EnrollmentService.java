@@ -4,7 +4,6 @@ import liveklass.backend.domain.course.entity.Course;
 import liveklass.backend.domain.course.repository.CourseRepository;
 import liveklass.backend.domain.enrollment.dto.EnrollmentResponse;
 import liveklass.backend.domain.enrollment.entity.Enrollment;
-import liveklass.backend.domain.enrollment.entity.EnrollmentStatus;
 import liveklass.backend.domain.enrollment.repository.EnrollmentRepository;
 import liveklass.backend.domain.user.entity.User;
 import liveklass.backend.domain.user.repository.UserRepository;
@@ -39,21 +38,24 @@ public class EnrollmentService {
             throw new BadRequestException("Course is not open for enrollment");
         }
 
-        if (enrollmentRepository.existsByCourse_IdAndUser_IdAndStatusNot(courseId, userId, EnrollmentStatus.CANCELLED)) {
-            throw new ConflictException("Already enrolled in this course");
-        }
-
         if (course.isFull()) {
             throw new ConflictException("Course is full");
         }
 
-        Enrollment enrollment = Enrollment.builder()
-                .course(course)
-                .user(user)
-                .build();
+        Enrollment enrollment = enrollmentRepository.findByCourse_IdAndUser_Id(courseId, userId)
+                .map(existing -> {
+                    if (!existing.isCancelled()) {
+                        throw new ConflictException("Already enrolled in this course");
+                    }
+                    existing.reEnroll();
+                    return existing;
+                })
+                .orElseGet(() -> enrollmentRepository.save(
+                        Enrollment.builder().course(course).user(user).build()
+                ));
 
         course.increaseEnrolledCount();
-        return EnrollmentResponse.from(enrollmentRepository.save(enrollment));
+        return EnrollmentResponse.from(enrollment);
     }
 
     @Transactional
