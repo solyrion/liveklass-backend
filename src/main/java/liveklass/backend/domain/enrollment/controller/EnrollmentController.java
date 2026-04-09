@@ -23,18 +23,18 @@ public class EnrollmentController {
         return enrollmentService.enroll(userId, courseId);
     }
 
-    @PatchMapping("/enrollments/{enrollmentId}/confirm")
+    @PatchMapping("/courses/{courseId}/enrollments/confirm")
     public EnrollmentResponse confirm(
             @RequestHeader("X-User-Id") Long userId,
-            @PathVariable Long enrollmentId) {
-        return enrollmentService.confirm(userId, enrollmentId);
+            @PathVariable Long courseId) {
+        return enrollmentService.confirm(userId, courseId);
     }
 
-    @PatchMapping("/enrollments/{enrollmentId}/cancel")
+    @PatchMapping("/courses/{courseId}/enrollments/cancel")
     public EnrollmentResponse cancel(
             @RequestHeader("X-User-Id") Long userId,
-            @PathVariable Long enrollmentId) {
-        return enrollmentService.cancel(userId, enrollmentId);
+            @PathVariable Long courseId) {
+        return enrollmentService.cancel(userId, courseId);
     }
 
     @GetMapping("/enrollments/me")

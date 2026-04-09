@@ -11,7 +11,6 @@ import liveklass.backend.domain.user.repository.UserRepository;
 import liveklass.backend.domain.waitlist.repository.WaitlistRepository;
 import liveklass.backend.global.exception.BadRequestException;
 import liveklass.backend.global.exception.ConflictException;
-import liveklass.backend.global.exception.ForbiddenException;
 import liveklass.backend.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -58,29 +57,21 @@ public class EnrollmentService {
     }
 
     @Transactional
-    public EnrollmentResponse confirm(Long userId, Long enrollmentId) {
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() -> new NotFoundException("Enrollment not found: " + enrollmentId));
-
-        if (!enrollment.getUser().getId().equals(userId)) {
-            throw new ForbiddenException("Not authorized");
-        }
+    public EnrollmentResponse confirm(Long userId, Long courseId) {
+        Enrollment enrollment = enrollmentRepository.findByCourse_IdAndUser_Id(courseId, userId)
+                .orElseThrow(() -> new NotFoundException("Enrollment not found"));
 
         enrollment.confirm();
         return EnrollmentResponse.from(enrollment);
     }
 
     @Transactional
-    public EnrollmentResponse cancel(Long userId, Long enrollmentId) {
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
-                .orElseThrow(() -> new NotFoundException("Enrollment not found: " + enrollmentId));
+    public EnrollmentResponse cancel(Long userId, Long courseId) {
+        Course course = courseRepository.findByIdWithLock(courseId)
+                .orElseThrow(() -> new NotFoundException("Course not found: " + courseId));
 
-        if (!enrollment.getUser().getId().equals(userId)) {
-            throw new ForbiddenException("Not authorized");
-        }
-
-        Course course = courseRepository.findByIdWithLock(enrollment.getCourse().getId())
-                .orElseThrow(() -> new NotFoundException("Course not found"));
+        Enrollment enrollment = enrollmentRepository.findByCourse_IdAndUser_Id(courseId, userId)
+                .orElseThrow(() -> new NotFoundException("Enrollment not found"));
 
         enrollment.cancel();
         course.decreaseEnrolledCount();
