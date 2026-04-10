@@ -37,6 +37,5 @@ out/
 .vscode/
 
 ### Project specific ###
-docker-compose.yml
 DESIGN.md
 CLAUDE.md
