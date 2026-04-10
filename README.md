@@ -103,8 +103,15 @@ Response 201:
 }
 
 // PATCH /courses/1/status
-Request: { "status": "OPEN" }
-Response 200: { "id": 1, "status": "OPEN", ... }
+Request:
+{ "status": "OPEN" }
+
+Response 200:
+{
+  "id": 1,
+  "status": "OPEN",
+  ...
+}
 
 // GET /courses?status=OPEN&page=0&size=20
 Response 200:
@@ -149,10 +156,20 @@ Response 201:
 // Error 400: OPEN 상태가 아닌 강의
 
 // PATCH /courses/1/enrollments/confirm
-Response 200: { "id": 1, "status": "CONFIRMED", "confirmedAt": "2026-04-10T10:05:00" }
+Response 200:
+{
+  "id": 1,
+  "status": "CONFIRMED",
+  "confirmedAt": "2026-04-10T10:05:00"
+}
 
 // PATCH /courses/1/enrollments/cancel
-Response 200: { "id": 1, "status": "CANCELLED", "cancelledAt": "2026-04-10T10:10:00" }
+Response 200:
+{
+  "id": 1,
+  "status": "CANCELLED",
+  "cancelledAt": "2026-04-10T10:10:00"
+}
 // Error 400: CONFIRMED 후 7일 초과 시 취소 불가
 ```
 
