@@ -326,6 +326,7 @@ Claude (claude-sonnet-4-6)를 활용하여 아래 작업을 진행했습니다.
 - 동시성 처리 전략(Pessimistic Lock vs Optimistic Lock) 논의
 - 코드 구현 검토 및 피드백(엔티티, 서비스, 컨트롤러, 리포지토리, 예외 처리)
 - 설계 결정 사항에 대한 트레이드오프 분석
+- 동시성 테스트 코드 작성 (CountDownLatch 기반 시나리오 설계)
 - 버그 발견 및 수정 (재신청 시 unique 제약 위반 이슈)
 - 커밋 메시지 및 PR 내용 작성
 - 설계 문서 및 README 작성
